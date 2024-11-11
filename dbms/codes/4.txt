@@ -1,30 +1,88 @@
--- Set the delimiter to allow for multi-line procedures
+-- Create and use the database
+CREATE DATABASE class;
+USE class;
+-- Create the tables for roll call
+CREATE TABLE O_RollCall (
+roll_no INT(3),
+name VARCHAR(20)
+);
+CREATE TABLE N_RollCall (
+roll_no INT(3),
+name VARCHAR(20)
+);
+-- Insert sample data into O_RollCall
+INSERT INTO O_RollCall VALUES (1, 'Himanshu');
+INSERT INTO O_RollCall VALUES (2, 'Ram');
+INSERT INTO O_RollCall VALUES (3, 'Soham');
+INSERT INTO O_RollCall VALUES (5, 'Mohan');
+INSERT INTO O_RollCall VALUES (6, 'Om');
+INSERT INTO O_RollCall VALUES (9, 'Yash');
+INSERT INTO O_RollCall VALUES (11, 'Mayur');
+-- Display the data in O_RollCall
+SELECT * FROM O_RollCall;
+-- Display the data in N_RollCall
+SELECT * FROM N_RollCall;
+-- Set the delimiter for procedure creation
 DELIMITER //
-
--- Create the stored procedure to calculate fines based on overdue days
-CREATE PROCEDURE B (roll_new INT, book_name VARCHAR(20))
+-- Create a procedure to copy unique entries from O_RollCall to N_RollCall
+CREATE PROCEDURE cursor_proc_p1()
 BEGIN
-    DECLARE X INT;  
-    DECLARE CONTINUE HANDLER FOR NOT FOUND BEGIN
-        SELECT 'Borrower Not Found' AS Message;
-    END;
-
-    -- Calculate overdue days
-    SELECT DATEDIFF(CURDATE(), DOI) INTO X
-    FROM Borrower
-    WHERE roll_no = roll_new AND book_name = book_name;
-
-    -- Insert fine based on overdue days
-    IF (X > 15 AND X < 30) THEN
-        INSERT INTO Fine (roll_no, fine_date, fine_amount)
-        VALUES (roll_new, CURDATE(), X * 5);
-    ELSEIF (X >= 30) THEN
-        INSERT INTO Fine (roll_no, fine_date, fine_amount)
-        VALUES (roll_new, CURDATE(), X * 50);
-    END IF;
-
-    -- Update the status of the book to 'returned'
-    UPDATE Borrower 
-    SET status = 'returned'
-    WHERE roll_no = roll_new AND book_name = book_name;
+DECLARE fin INT DEFAULT 0;
+DECLARE old_roll INT;
+DECLARE old_name VARCHAR(20);
+-- Declare a cursor for selecting records from O_RollCall
+DECLARE old_csr CURSOR FOR SELECT roll_no, name FROM O_RollCall;
+-- Declare a handler for not found condition
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET fin = 1;
+-- Open the cursor
+OPEN old_csr;
+-- Start the loop to fetch and insert records
+read_loop: LOOP
+FETCH old_csr INTO old_roll, old_name;
+-- Check if no more rows are found
+IF fin = 1 THEN
+LEAVE read_loop;
+END IF;
+-- Check for redundancy before inserting
+IF NOT EXISTS (SELECT * FROM N_RollCall WHERE roll_no = old_roll) THEN
+INSERT INTO N_RollCall (roll_no, name) VALUES (old_roll, old_name);
+END IF;
+END LOOP;
+-- Close the cursor
+CLOSE old_csr;
 END //
+-- Create a parameterized procedure to copy entries from O_RollCall to N_RollCall based
+on roll_no
+CREATE PROCEDURE cursor_proc_p2(IN r1 INT)
+BEGIN
+DECLARE r2 INT;
+DECLARE exit_loop BOOLEAN DEFAULT FALSE;
+-- Declare a cursor to select roll_no greater than r1
+DECLARE c1 CURSOR FOR SELECT roll_no FROM O_RollCall WHERE roll_no > r1;
+-- Declare a handler for not found condition
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET exit_loop = TRUE;
+-- Open the cursor
+OPEN c1;
+-- Start the loop to fetch and insert records
+e_loop: LOOP
+FETCH c1 INTO r2;
+-- Check if no more rows are found
+IF exit_loop THEN
+LEAVE e_loop;
+END IF;
+-- Check for redundancy before inserting
+IF NOT EXISTS (SELECT * FROM N_RollCall WHERE roll_no = r2) THEN
+INSERT INTO N_RollCall SELECT * FROM O_RollCall WHERE roll_no = r2;
+END IF;
+END LOOP e_loop;
+-- Close the cursor
+CLOSE c1;
+END //
+-- Call procedures to test the functionality
+CALL cursor_proc_p1();
+SELECT * FROM O_RollCall;
+SELECT * FROM N_RollCall;
+CALL cursor_proc_p2(5);
+SELECT * FROM N_RollCall; -- Check results after calling cursor_proc_p2(5)
+CALL cursor_proc_p2(3);
+SELECT * FROM N_RollCall; -- Check results after calling cursor_proc_p2(3)

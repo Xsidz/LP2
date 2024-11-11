@@ -1,0 +1,57 @@
+// Show available databases
+show dbs
+
+// Use the database named 'customer'
+use customer
+
+// Insert documents into the 'cust_table' collection
+db.cust_table.insert({ Item_id: 1, Cust_Name: "Ram", Product: "Milk", Amount: 40 });
+db.cust_table.insert({ Item_id: 2, Cust_Name: "Ram", Product: "Parle_G", Amount: 50 });
+db.cust_table.insert({ Item_id: 3, Cust_Name: "Mohan", Product: "Lays Chips", Amount: 40 });
+db.cust_table.insert({ Item_id: 4, Cust_Name: "Shivam", Product: "Mentos", Amount: 10 });
+db.cust_table.insert({ Item_id: 5, Cust_Name: "Mohan", Product: "Maggie", Amount: 60 });
+
+// Aggregation queries to calculate totals by customer name
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $sum: "$Amount" } } }
+]);
+
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $avg: "$Amount" } } }
+]);
+
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $min: "$Amount" } } }
+]);
+
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $max: "$Amount" } } }
+]);
+
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $first: "$Amount" } } }
+]);
+
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $last: "$Amount" } } }
+]);
+
+db.cust_table.aggregate([
+  { $group: { _id: "$Cust_Name", total: { $sum: 1 } } } // Counts the number of documents per customer
+]);
+
+
+// Create an index on the 'Item_id' field (index values should be 1 for ascending or -1 for descending)
+db.cust_table.createIndex({ 'Item_id': 1 });
+
+// Create another index if needed (for example on 'Cust_Name')
+db.cust_table.createIndex({ 'Cust_Name': 1 });
+
+// Get the list of indexes on 'cust_table'
+db.cust_table.getIndexes();
+
+// Example of dropping the index by specifying the index name
+db.cust_table.dropIndex("Item_id_1"); // Use the index name shown in getIndexes()
+
+// Check the remaining indexes
+db.cust_table.getIndexes();

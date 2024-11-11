@@ -1,43 +1,118 @@
 -- Set up the database
 SHOW DATABASES;
 USE Abhi;
-
 -- Show existing tables
 SHOW TABLES;
-
 -- Create the _master, customer, capital, and state tables
 CREATE TABLE _master (
-    product_no INT,
-    description VARCHAR(20),
-    profit_per FLOAT,
-    unit_measure VARCHAR(10),
-    quantity INT,
-    reorder INT,
-    sell_price FLOAT,
-    cost_price FLOAT,
-    PRIMARY KEY(product_no)
+product_no INT,
+description VARCHAR(20),
+profit_per FLOAT,
+unit_measure VARCHAR(10),
+quantity INT,
+reorder INT,
+sell_price FLOAT,
+cost_price FLOAT,
+PRIMARY KEY(product_no)
 );
-
--- Create additional tables
 CREATE TABLE customer (
-    cust_no INT,
-    cust_name VARCHAR(20),
-    cust_add VARCHAR(20),
-    phone_no INT,
-    PRIMARY KEY(cust_no)
+cust_no INT,
+cust_name VARCHAR(20),
+cust_add VARCHAR(20),
+phone_no INT,
+PRIMARY KEY(cust_no)
 );
-
 CREATE TABLE capital (
-    cap_no INT,
-    cap_name VARCHAR(20),
-    state_no INT,
-    PRIMARY KEY(cap_no)
+cap_no INT,
+cap_name VARCHAR(20),
+state_no INT,
+PRIMARY KEY(cap_no)
 );
-
 CREATE TABLE state (
-    state_no INT,
-    state_name VARCHAR(20),
-    state_code INT,
-    capital VARCHAR(20),
-    PRIMARY KEY(state_no)
+state_no INT,
+state_name VARCHAR(20),
+state_code INT,
+capital VARCHAR(20),
+PRIMARY KEY(state_no)
 );
+-- Insert sample data into the capital and state tables
+INSERT INTO capital VALUES (1, 'MH', 1), (2, 'RAJ', 2), (3, 'GOA', 3), (4,
+'GUJ', 4), (5, 'KAR', 5);
+INSERT INTO state VALUES (1, 'MH', 1, 'MUM'), (2, 'RAJ', 2, 'JAI'), (3, 'GOA',
+3, 'PAN'), (4, 'GUJ', 4, 'SUR'), (5, 'KAR', 5, 'BAN');
+-- Display all rows from capital and state tables
+SELECT * FROM capital;
+SELECT * FROM state;
+-- 1. INNER JOIN: Get matching rows between capital and state tables based
+on cap_no and state_no
+SELECT capital.cap_no, state.state_no
+FROM capital
+INNER JOIN state ON capital.cap_no = state.state_no;
+-- 2. Update state_no in the state table to demonstrate updates
+UPDATE state SET state_no = "78" WHERE state_no = 1;
+UPDATE state SET state_no = "58" WHERE state_no = 2;
+UPDATE state SET state_no = "46" WHERE state_no = 3;
+UPDATE state SET state_no = "489" WHERE state_no = 4;
+UPDATE state SET state_no = "458" WHERE state_no = 5;
+-- Insert additional values to show more join results
+INSERT INTO state VALUES (5, 'MP', 5, 'BHO');
+-- 3. INNER JOIN: Check the updated join between capital and state
+SELECT capital.cap_no, state.state_no
+FROM capital
+INNER JOIN state ON capital.cap_no = state.state_no;
+-- 4. LEFT JOIN: Show all capitals, including those without a matching state
+SELECT capital.cap_no, state.state_no
+FROM capital
+LEFT JOIN state ON capital.cap_no = state.state_no;
+-- 5. LEFT JOIN (incorrect column join example): Try a different join to
+showcase NULL results
+SELECT capital.cap_no, state.state_no
+FROM capital
+LEFT JOIN state ON capital.cap_no = state.state_name;
+-- 6. RIGHT JOIN: Show all states, including those without a matching capital
+SELECT capital.cap_no, state.state_no
+FROM capital
+RIGHT JOIN state ON capital.cap_no = state.state_no;
+-- Additional retrieval of all data in capital and state tables
+SELECT * FROM capital;
+SELECT * FROM state;
+-- 7. INNER JOIN with multiple columns: Retrieve details from both tables
+based on matching state_no
+SELECT capital.cap_no, capital.cap_name, state.capital, state.state_no
+FROM capital
+INNER JOIN state ON capital.cap_no = state.state_no;
+-- 8. LEFT JOIN: Show all capitals with their state details, if available
+SELECT capital.cap_no, capital.cap_name, state.capital, state.state_no
+FROM capital
+LEFT JOIN state ON capital.cap_no = state.state_no;
+-- 9. RIGHT JOIN with UNION: Combine LEFT and RIGHT JOIN results to
+simulate a FULL OUTER JOIN
+SELECT capital.cap_no, capital.cap_name, state.capital, state.state_no
+FROM capital
+LEFT JOIN state ON capital.cap_no = state.state_no
+UNION
+SELECT capital.cap_no, capital.cap_name, state.capital, state.state_no
+FROM capital
+RIGHT JOIN state ON capital.cap_no = state.state_no;
+-- 10. CROSS JOIN: Display all possible combinations of capital and state
+records
+SELECT * FROM capital c1, state s1;
+-- 11. CROSS JOIN with a condition: Show pairs with different cap_no and
+state_no
+SELECT * FROM capital c1, state s1 WHERE c1.cap_no != s1.state_no;
+-- 12. Sub-query: Find states with the same state_no as 'MH'
+SELECT * FROM state WHERE state_no = (SELECT state_no FROM state
+WHERE state_name = 'MH');
+-- 13. Sub-query: Retrieve details for the state 'GUJ'
+SELECT * FROM state WHERE state_no = (SELECT state_no FROM state
+WHERE state_name = 'GUJ');
+-- 14. Sub-query using capital: Find states by matching capital with a capital's
+state_no
+SELECT * FROM state WHERE state_no = (SELECT state_no FROM capital
+WHERE cap_name = 'MH');
+SELECT * FROM state WHERE state_no = (SELECT state_no FROM capital
+WHERE cap_name = 'GUJ');
+SELECT * FROM state WHERE state_no = (SELECT state_no FROM capital
+WHERE cap_name = 'RAJ');
+SELECT * FROM state WHERE state_no = (SELECT state_no FROM capital
+WHERE cap_name = 'KAR');

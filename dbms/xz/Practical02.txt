@@ -1,0 +1,57 @@
+# Practical 02
+SQL Queries:
+	a. Design and Develop SQL DDL statements which demonstrate the use of SQL objects such as Table,
+		View, Index, Sequence, Synonym, different constraints etc.
+	b. Write at least 10 SQL queries on the suitable database application using SQL DML statements.
+
+CREATE DATABASE practicals;
+USE practicals;
+
+CREATE TABLE teacher
+	(id INT,
+    name VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id));
+
+CREATE TABLE student
+	(roll INT,
+    name VARCHAR(20) NOT NULL,
+    teached INT,
+    FOREIGN KEY (teached) REFERENCES teacher(id));
+    
+INSERT INTO teacher
+	VALUES 
+    (1,"AA"),
+    (2,"BB"),
+    (3,"CC");
+INSERT INTO student
+	VALUES 
+    (11,"aa",1),
+    (12,"bb",2),
+    (13,"cc",3),
+    (14,"dd",1);
+
+CREATE VIEW teacher_name_view AS
+	SELECT name FROM teacher;
+CREATE VIEW student_name_view AS
+	SELECT name FROM student;
+    
+CREATE INDEX teacher_index ON
+	teacher(id);
+CREATE INDEX student_index ON
+	student(roll);
+
+SELECT * FROM student;
+SELECT COUNT(*) FROM teacher;
+SELECT * FROM student s
+	JOIN teacher t
+    ON s.teached = t.id;
+
+SHOW INDEX FROM teacher;
+SELECT * FROM teacher_name_view;
+
+UPDATE teacher
+	SET name = "DD"
+    WHERE id = 3 ;
+    
+DELETE FROM student
+	WHERE roll = 13;

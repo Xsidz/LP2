@@ -1,0 +1,68 @@
+-- Use Database
+USE practicals;
+
+CREATE TABLE Borrower (
+    roll_no INT PRIMARY KEY,                -- Unique ID for each borrower (e.g., student roll number)
+    book_name VARCHAR(20),                  -- Name of the borrowed book
+    DOI DATE,                               -- Date of Issue, indicating when the book was borrowed
+    status VARCHAR(10),                     -- Status of the book, either 'borrowed' or 'returned'
+    UNIQUE (roll_no, book_name)             -- Ensures each roll number can only borrow a specific book once at a time
+);
+-- Sample Data for Borrower Table
+INSERT INTO Borrower (roll_no, book_name, DOI, status) VALUES
+(1, 'TOC', '2024-09-01', 'borrowed'),
+(2, 'Database', '2024-09-10', 'borrowed'),
+(3, 'Networks', '2024-10-01', 'returned'),
+(4, 'Algorithms', '2024-08-15', 'borrowed'),
+(5, 'DataScience', '2024-10-20', 'borrowed');
+
+CREATE TABLE Fine (
+    fine_id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique ID for each fine record
+    roll_no INT,                             -- Roll number of the borrower
+    fine_date DATE,                          -- Date the fine was applied
+    fine_amount DECIMAL(10, 2),              -- Amount of the fine
+    FOREIGN KEY (roll_no) REFERENCES Borrower(roll_no)  -- Links to the roll number in the Borrower table
+);
+-- Sample Data for Fine Table
+INSERT INTO Fine (roll_no, fine_date, fine_amount) VALUES
+(1, '2024-10-16', 75.00),      -- Fine for roll_no 1
+(2, '2024-10-26', 150.00),     -- Fine for roll_no 2
+(4, '2024-11-05', 250.00);     -- Fine for roll_no 4
+
+
+DELIMITER //
+
+CREATE PROCEDURE B (roll_new INT, book_name VARCHAR(20))
+BEGIN
+DECLARE X INT;
+DECLARE CONTINUE HANDLER FOR NOT FOUND BEGIN
+    SELECT 'Borrower Not Found' AS Message;
+END;
+SELECT DATEDIFF(CURDATE(), DOI) INTO X
+FROM Borrower
+WHERE roll_no = roll_new AND book_name = book_name;
+
+IF (X > 15 AND X < 30) THEN
+    INSERT INTO Fine (roll_no, fine_date, fine_amount)
+    VALUES (roll_new, CURDATE(), X * 5);  
+ELSEIF (X >= 30) THEN
+    INSERT INTO Fine (roll_no, fine_date, fine_amount)
+    VALUES (roll_new, CURDATE(), X * 50);  
+END IF;
+
+UPDATE Borrower 
+SET status = 'returned'
+WHERE roll_no = roll_new AND book_name = book_name;
+
+END //
+
+DELIMITER ;
+
+
+
+CALL B(1, 'TOC');
+CALL B(12, 'xyz');
+CALL B(20, 'patil');
+
+SELECT * FROM Fine;
+SELECT * FROM Borrower;
