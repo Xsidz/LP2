@@ -2,6 +2,10 @@
 show dbs
 // Use the database named 'customer'
 use customer
+
+// Explicitly create the collection named 'cust_table'
+db.createCollection("cust_table")
+
 // Insert documents into the 'cust_table' collection
 db.cust_table.insert({Item_id: 1, Cust_Name: "Ram", Product: "Milk", Amount: 40});
 db.cust_table.insert({Item_id: 2, Cust_Name: "Ram", Product: "Parle_G", Amount: 50});
