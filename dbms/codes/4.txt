@@ -1,0 +1,30 @@
+-- Set the delimiter to allow for multi-line procedures
+DELIMITER //
+
+-- Create the stored procedure to calculate fines based on overdue days
+CREATE PROCEDURE B (roll_new INT, book_name VARCHAR(20))
+BEGIN
+    DECLARE X INT;  
+    DECLARE CONTINUE HANDLER FOR NOT FOUND BEGIN
+        SELECT 'Borrower Not Found' AS Message;
+    END;
+
+    -- Calculate overdue days
+    SELECT DATEDIFF(CURDATE(), DOI) INTO X
+    FROM Borrower
+    WHERE roll_no = roll_new AND book_name = book_name;
+
+    -- Insert fine based on overdue days
+    IF (X > 15 AND X < 30) THEN
+        INSERT INTO Fine (roll_no, fine_date, fine_amount)
+        VALUES (roll_new, CURDATE(), X * 5);
+    ELSEIF (X >= 30) THEN
+        INSERT INTO Fine (roll_no, fine_date, fine_amount)
+        VALUES (roll_new, CURDATE(), X * 50);
+    END IF;
+
+    -- Update the status of the book to 'returned'
+    UPDATE Borrower 
+    SET status = 'returned'
+    WHERE roll_no = roll_new AND book_name = book_name;
+END //

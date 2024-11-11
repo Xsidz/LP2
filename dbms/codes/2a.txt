@@ -1,0 +1,35 @@
+-- Show all available databases
+SHOW DATABASES;
+
+-- Create a new database named 'employee'
+CREATE DATABASE employee;
+
+-- Use the newly created database
+USE employee;
+
+-- Create the emp_details table with various constraints
+CREATE TABLE emp_details (
+    emp_no INT(10) PRIMARY KEY,                 -- Primary key constraint on employee number
+    emp_name VARCHAR(30) NOT NULL,              -- NOT NULL constraint on employee name
+    emp_gender CHAR(1) CHECK (emp_gender IN ('M', 'F')),  -- CHECK constraint for gender
+    emp_sal INT(10) CHECK (emp_sal > 0),        -- CHECK constraint to ensure positive salary
+    emp_dept VARCHAR(20)
+);
+
+-- Alter the table to add a new column with a CHECK constraint
+ALTER TABLE emp_details  
+ADD COLUMN emp_age INT(3) CHECK (emp_age > 18); -- CHECK constraint to ensure minimum age is 18
+
+-- Insert sample data into emp_details table
+INSERT INTO emp_details (emp_no, emp_name, emp_gender, emp_sal, emp_dept)  
+VALUES (1, 'Ram', 'M', 300000, 'designing'),
+       (2, 'Soham', 'M', 300000, 'designing'),
+       (3, 'Mohan', 'M', 250000, 'management'),
+       (4, 'Om', 'M', 400000, 'coding');
+
+-- Create views to display specific records from emp_details
+CREATE VIEW emp_view1 AS SELECT * FROM emp_details;
+CREATE VIEW emp_view2 AS SELECT * FROM emp_details WHERE emp_dept = 'designing';
+
+-- Create an index on emp_no and emp_name columns for faster searching
+CREATE INDEX emp_ind ON emp_details(emp_no, emp_name);

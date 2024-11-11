@@ -1,0 +1,105 @@
+package MySQLConnectivity;
+import java.sql.*;
+import java.util.Scanner;
+public class MySQL {
+public static void main(String[] args) {
+// Declare variables
+int n, sno;
+String name, telephone, gender;
+// Initialize Scanner for user input
+Scanner in = new Scanner(System.in);
+// Database connection parameters
+String url = "jdbc:mysql://localhost:3306/your_database"; // Replace with your
+database name
+String user = "your_username"; // Replace with your MySQL username
+String password = "your_password"; // Replace with your MySQL password
+try (Connection con = DriverManager.getConnection(url, user, password);
+Statement stmt = con.createStatement();
+PreparedStatement pstmInsert = con.prepareStatement("INSERT INTO Personal
+(sno, name, telephone, gender) VALUES (?, ?, ?, ?)");
+PreparedStatement pstmDelete = con.prepareStatement("DELETE FROM
+Personal WHERE sno = ?");
+PreparedStatement pstmUpdate = con.prepareStatement("UPDATE Personal SET
+name = ?, telephone = ?, gender = ? WHERE sno = ?")) {
+// Insertion
+System.out.print("Enter the number of records you want to insert: ");
+n = in.nextInt();
+for (int i = 0; i < n; i++) {
+System.out.print("\nData" + (i + 1) + "\nEnter Sno: ");
+sno = in.nextInt();
+pstmInsert.setInt(1, sno);
+System.out.print("Enter Name: ");
+name = in.next();
+pstmInsert.setString(2, name);
+System.out.print("Enter Telephone: ");
+telephone = in.next();
+pstmInsert.setString(3, telephone);
+System.out.print("Enter Gender: ");
+gender = in.next();
+pstmInsert.setString(4, gender);
+pstmInsert.executeUpdate();
+}
+// Display after insertion
+displayRecords(stmt, "After Insertion");
+// Search operation
+System.out.print("Enter Sno to search: ");
+sno = in.nextInt();
+searchRecord(stmt, sno);
+// Update operation
+System.out.print("Enter Sno to update: ");
+sno = in.nextInt();
+System.out.print("Enter new Name: ");
+name = in.next();
+System.out.print("Enter new Telephone: ");
+telephone = in.next();
+System.out.print("Enter new Gender: ");
+gender = in.next();
+pstmUpdate.setString(1, name);
+pstmUpdate.setString(2, telephone);
+pstmUpdate.setString(3, gender);
+pstmUpdate.setInt(4, sno);
+pstmUpdate.executeUpdate();
+// Display after update
+displayRecords(stmt, "After Update");
+// Deletion
+System.out.print("Enter the number of records you want to delete: ");
+n = in.nextInt();
+for (int i = 0; i < n; i++) {
+System.out.print("\nData" + (i + 1) + "\nEnter Sno: ");
+sno = in.nextInt();
+pstmDelete.setInt(1, sno);
+pstmDelete.executeUpdate();
+}
+// Display after deletion
+displayRecords(stmt, "After Deletion");
+} catch (SQLException e) {
+e.printStackTrace();
+} finally {
+in.close();
+}
+}
+// Method to display records
+private static void displayRecords(Statement stmt, String message) throws
+SQLException {
+ResultSet rs = stmt.executeQuery("SELECT * FROM Personal;");
+System.out.println("\n" + message);
+System.out.println("Sno\tName\tTelephone\tGender");
+while (rs.next()) {
+System.out.println(rs.getInt(1) + "\t" + rs.getString(2) + "\t" + rs.getString(3) + "\t" +
+rs.getString(4));
+}
+}
+// Method to search for a record
+private static void searchRecord(Statement stmt, int sno) throws SQLException {
+ResultSet rsSearch = stmt.executeQuery("SELECT * FROM Personal WHERE sno =
+" + sno + ";");
+System.out.println("\nSearch Result");
+System.out.println("Sno\tName\tTelephone\tGender");
+if (rsSearch.next()) {
+System.out.println(rsSearch.getInt(1) + "\t" + rsSearch.getString(2) + "\t" +
+rsSearch.getString(3) + "\t" + rsSearch.getString(4));
+} else {
+System.out.println("No record found with Sno: " + sno);
+}
+}
+}

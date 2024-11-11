@@ -1,0 +1,59 @@
+// Show available databases
+show dbs
+// Use the database named 'book'
+use book
+// Show collections in the database
+show collections;
+// Create a collection named 'library'
+db.createCollection("library");
+// Insert documents into the 'library' collection
+db.library.insert({"bid":1,"name":"C++"});
+db.library.insert({"bid":2,"name":"SEPM","author":"Pressman"});
+db.library.insert({"bid":3,"name":"CN","author":"Forouzan","cost":700});
+// Find and pretty-print all documents
+db.library.find().pretty();
+// Remove a document by 'bid'
+db.library.remove({"bid":1});
+// Count documents in the collection
+db.library.countDocuments(); // Prefer countDocuments() over count()
+// Find all documents again
+db.library.find().pretty();
+// Insert a document again
+db.library.insert({"bid":1,"name":"C++"});
+// Pretty-print documents after insertion
+db.library.find().pretty();
+// Sort documents by 'bid'
+db.library.find().sort({"bid":1});
+// Insert more documents
+db.library.insert({"bid":4,"name":"SPOS","author":"Pearson","cost":500});
+// Find documents sorted by 'bid'
+db.library.find().pretty();
+db.library.find().sort({"bid":1});
+// Find documents with both 'name' and 'cost' conditions
+db.library.find({$and:[{"name":"CN"},{"cost":700}]}).pretty();
+// Insert additional documents
+db.library.insert({"bid":5,"name":"TOC","author":"Addison-Wesley","cost":600});
+db.library.insert({"bid":6,"name":"AI","author":"McGraw Hill Education","cost":800});
+// Find all documents again
+db.library.find().pretty();
+// Find documents with cost of 500 or 800
+db.library.find({$or:[{"cost":500},{"cost":800}]}).pretty();
+// Find documents where cost is not equal to 500
+db.library.find({"cost":{$ne:500}});
+// Find documents using $nor operator
+db.library.find({$nor:[{"cost":500},{"author":"Forouzan"}]});
+// Find documents using $not operator
+db.library.find({"cost":{$not:{$gt:800}}});
+// Insert another document
+db.library.insert({"bid":7,"name":"CC","author":"Wiley Publications","cost":400});
+// Display all documents
+db.library.find();
+// Update documents with specific cost values
+db.library.updateMany({'cost':400}, {$set: {'cost':600}}); // Using updateMany to update all
+matching documents
+db.library.updateMany({'cost':800}, {$set: {'cost':1200}});
+// Find and pretty-print all documents after updates
+db.library.find().pretty();
+// Example of using the save() method (to update or insert)
+db.library.save({"bid":3, "name":"Updated CN", "author":"Forouzan", "cost":700}); // This
+will update if 'bid' exists or insert if it doesn't

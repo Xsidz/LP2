@@ -1,0 +1,43 @@
+-- Set up the database
+SHOW DATABASES;
+USE Abhi;
+
+-- Show existing tables
+SHOW TABLES;
+
+-- Create the _master, customer, capital, and state tables
+CREATE TABLE _master (
+    product_no INT,
+    description VARCHAR(20),
+    profit_per FLOAT,
+    unit_measure VARCHAR(10),
+    quantity INT,
+    reorder INT,
+    sell_price FLOAT,
+    cost_price FLOAT,
+    PRIMARY KEY(product_no)
+);
+
+-- Create additional tables
+CREATE TABLE customer (
+    cust_no INT,
+    cust_name VARCHAR(20),
+    cust_add VARCHAR(20),
+    phone_no INT,
+    PRIMARY KEY(cust_no)
+);
+
+CREATE TABLE capital (
+    cap_no INT,
+    cap_name VARCHAR(20),
+    state_no INT,
+    PRIMARY KEY(cap_no)
+);
+
+CREATE TABLE state (
+    state_no INT,
+    state_name VARCHAR(20),
+    state_code INT,
+    capital VARCHAR(20),
+    PRIMARY KEY(state_no)
+);

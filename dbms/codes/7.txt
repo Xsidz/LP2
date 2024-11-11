@@ -1,0 +1,54 @@
+-- Create and use the database
+CREATE DATABASE lib;
+USE lib;
+-- Create the library table
+CREATE TABLE library (
+bno INT(5),
+bname VARCHAR(40),
+author VARCHAR(20),
+allowed_days INT(5)
+);
+-- Create the audit table to track changes
+CREATE TABLE library_audit (
+bno INT(5),
+old_allowed_days INT(5),
+new_allowed_days INT(5),
+change_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+-- Insert sample data into the library
+INSERT INTO library VALUES (1, 'Database Systems', 'Connally T', 10);
+INSERT INTO library VALUES (2, 'System Programming', 'John Donovan', 20);
+INSERT INTO library VALUES (3, 'Computer Network & Internet', 'Douglas E. Comer', 18);
+INSERT INTO library VALUES (4, 'Agile Project Management', 'Ken Schwaber', 24);
+INSERT INTO library VALUES (5, 'Python for Data Analysis', 'Wes McKinney', 12);
+-- Display the data in the library
+SELECT * FROM library;
+-- Set the delimiter for trigger creation
+DELIMITER //
+-- Create a trigger to audit updates
+CREATE TRIGGER tr_update_library_audit
+BEFORE UPDATE ON library
+FOR EACH ROW
+BEGIN
+INSERT INTO library_audit (bno, old_allowed_days, new_allowed_days)
+VALUES (OLD.bno, OLD.allowed_days, NEW.allowed_days);
+END //
+-- Create a trigger to audit deletions
+CREATE TRIGGER tr_delete_library_audit
+BEFORE DELETE ON library
+FOR EACH ROW
+BEGIN
+INSERT INTO library_audit (bno, old_allowed_days, new_allowed_days)
+VALUES (OLD.bno, OLD.allowed_days, NULL);
+END //
+DELIMITER ;
+-- Perform updates on the library table
+UPDATE library SET allowed_days = 15 WHERE bno = 1;
+UPDATE library SET allowed_days = 25 WHERE bno = 2;
+UPDATE library SET allowed_days = 13 WHERE bno = 3;
+UPDATE library SET allowed_days = 19 WHERE bno = 4;
+UPDATE library SET allowed_days = 17 WHERE bno = 5;
+-- Display the updated library table
+SELECT * FROM library;
+-- Display the audit log
+SELECT * FROM library_audit;

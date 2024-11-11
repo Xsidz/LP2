@@ -1,0 +1,75 @@
+-- Create and use the database
+CREATE DATABASE Score;
+USE Score;
+-- Create tables to store student marks and results
+CREATE TABLE stud_marks (
+name VARCHAR(20),
+total_marks INT(5)
+);
+CREATE TABLE Result (
+roll_no INT(3) PRIMARY KEY,
+name VARCHAR(20),
+class VARCHAR(20)
+);
+-- Insert sample data into stud_marks
+INSERT INTO stud_marks VALUES ('Suresh', 995);
+INSERT INTO stud_marks VALUES ('Harish', 865);
+INSERT INTO stud_marks VALUES ('Samart', 920);
+INSERT INTO stud_marks VALUES ('Mohan', 1000);
+INSERT INTO stud_marks VALUES ('Soham', 745);
+-- Display the data in stud_marks
+SELECT * FROM stud_marks;
+-- Insert corresponding results into Result table
+INSERT INTO Result (roll_no, name) VALUES (1, 'Suresh');
+INSERT INTO Result (roll_no, name) VALUES (2, 'Harish');
+INSERT INTO Result (roll_no, name) VALUES (3, 'Samart');
+INSERT INTO Result (roll_no, name) VALUES (4, 'Mohan');
+INSERT INTO Result (roll_no, name) VALUES (5, 'Soham');
+-- Display the data in Result table
+SELECT * FROM Result;
+-- Set the delimiter for the procedure creation
+DELIMITER //
+-- Create the stored procedure to determine the grade
+CREATE PROCEDURE proc_Grade(IN r INT, OUT grade CHAR(25))
+BEGIN
+DECLARE m INT;
+-- Fetch total marks based on roll number
+SELECT total_marks INTO m
+FROM stud_marks
+WHERE name = (SELECT name FROM Result WHERE roll_no = r);
+-- Determine the grade based on total marks
+IF m >= 990 AND m <= 1500 THEN
+SET grade = 'Distinction';
+UPDATE Result SET class = 'Distinction' WHERE roll_no = r;
+ELSEIF m >= 900 AND m <= 989 THEN
+SET grade = 'FirstClass';
+UPDATE Result SET class = 'FirstClass' WHERE roll_no = r;
+ELSEIF m >= 825 AND m <= 899 THEN
+SET grade = 'SecondClass';
+UPDATE Result SET class = 'SecondClass' WHERE roll_no = r;
+ELSE
+SET grade = '--';
+UPDATE Result SET class = '--' WHERE roll_no = r;
+END IF;
+END //
+-- Reset the delimiter
+DELIMITER ;
+-- Create a function that utilizes the procedure to return the grade
+DELIMITER //
+CREATE FUNCTION func_Grade(r INT)
+RETURNS VARCHAR(25)
+DETERMINISTIC
+BEGIN
+DECLARE grade VARCHAR(25);
+CALL proc_Grade(r, grade);
+RETURN grade;
+END //
+DELIMITER ;
+-- Test the function for each student
+SELECT func_Grade(1) AS Grade_1;
+SELECT func_Grade(2) AS Grade_2;
+SELECT func_Grade(3) AS Grade_3;
+SELECT func_Grade(4) AS Grade_4;
+SELECT func_Grade(5) AS Grade_5;
+-- Display the final results
+SELECT * FROM Result;

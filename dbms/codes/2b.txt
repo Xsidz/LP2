@@ -1,0 +1,30 @@
+-- Show available databases
+SHOW DATABASES;
+
+-- Create a new database named 'student'
+CREATE DATABASE student;
+
+-- Use the newly created 'student' database
+USE student;
+
+-- Create the 'stud_tab' table with appropriate fields
+CREATE TABLE stud_tab (
+    stud_id INT(4),
+    stud_name VARCHAR(20),
+    stud_dept VARCHAR(10),
+    stud_dob DATE,
+    stud_address VARCHAR(10)
+);
+
+-- Insert records into 'stud_tab'
+INSERT INTO stud_tab VALUES (1, 'Ram', 'Comp', '2002-11-05', 'Pune');
+INSERT INTO stud_tab VALUES (2, 'Soham', 'IT', '2002-09-03', 'Nashik');
+INSERT INTO stud_tab VALUES (3, 'Ramesh', 'Comp', '2002-03-19', 'Pune');
+INSERT INTO stud_tab VALUES (4, 'Mohan', 'AI&DS', '2002-02-22', 'Nagpur');
+
+-- Update specific records based on condition
+UPDATE stud_tab SET shift = 'first' WHERE stud_id = 1;
+UPDATE stud_tab SET shift = 'second' WHERE stud_id = 2;
+
+-- Insert a new record including the 'shift' column
+INSERT INTO stud_tab VALUES (5, 'Omkar', 'ENTC', '2002-06-26', 'Pune', 'second');
