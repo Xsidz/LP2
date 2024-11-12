@@ -1,0 +1,37 @@
+Practical 12 steps
+
+1
+start terminal
+
+2
+write command 1
+sudo systemctl enable mongod.service
+
+3
+write command 2
+sudo systemctl start  mongod.service
+
+4
+open new terminal window and write command
+mongo
+
+your mongo will get open here
+
+5
+open new terminal write one command
+pip install pymongo
+
+6 
+open jupyter notebook
+
+7
+copy paste code
+
+8
+run code
+
+9
+create multile data , to see your data in MongoDB
+run command in this mongo window
+use PracticalMongo ;
+PracticalMongo.Practical12.find() ;
